@@ -7,7 +7,19 @@ from pathlib import Path
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
-TOKEN = os.environ.get("SANDBOX_TOKEN", "")
+def _load_token() -> str:
+    token_file = os.environ.get("SANDBOX_TOKEN_FILE", "/opt/sandbox/token")
+    try:
+        with open(token_file) as f:
+            t = f.read().strip()
+            if t:
+                return t
+    except OSError:
+        pass
+    return os.environ.get("SANDBOX_TOKEN", "")
+
+
+TOKEN = _load_token()
 WORKSPACE = Path(os.environ.get("SANDBOX_WORKSPACE", "/workspace"))
 DEFAULT_TIMEOUT = int(os.environ.get("SANDBOX_EXEC_TIMEOUT", "600"))
 
